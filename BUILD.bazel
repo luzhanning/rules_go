@@ -1,8 +1,4 @@
 load(
-    "//go:def.bzl",
-    "TOOLS_NOGO",
-)
-load(
     "//go/private:context.bzl",
     "go_config",
     "go_context_data",
@@ -10,10 +6,6 @@ load(
 load(
     "//go/private/rules:info.bzl",
     "go_info",
-)
-load(
-    "//go/private/rules:nogo.bzl",
-    "nogo",
 )
 load(
     "//go/private/rules:stdlib.bzl",
@@ -54,10 +46,15 @@ filegroup(
 # golang.org/x/tools/go/analysis/passes.
 # This is not backward compatible, so use caution when depending on this --
 # new analyses may discover issues in existing builds.
-nogo(
+#
+# The actual target lives in //nogo so that its @org_golang_x_tools deps stay
+# out of this package, which every consumer loads through //:default_nogo and
+# //:go_context_data. Aliases are dereferenced during analysis, not loading, so
+# //nogo is only loaded by builds that actually opt into tools_nogo.
+alias(
     name = "tools_nogo",
+    actual = "//nogo:tools_nogo",
     visibility = ["//visibility:public"],
-    deps = TOOLS_NOGO,
 )
 
 # go_context_data collects build options and is depended on by all Go targets.

@@ -1,0 +1,24 @@
+load(
+    "//go:def.bzl",
+    "TOOLS_NOGO",
+)
+load(
+    "//go/private/rules:nogo.bzl",
+    "nogo",
+)
+
+# tools_nogo lives in its own package on purpose: its deps (go/def.bzl's
+# TOOLS_NOGO) all point at @org_golang_x_tools, while the repository root
+# package is loaded by virtually every build through //:default_nogo and
+# //:go_context_data. Keeping these labels here means a problem resolving
+# @org_golang_x_tools -- for example in a downstream fork or vendored setup
+# where that repo is not visible -- can only affect builds that actually opt
+# into tools_nogo, instead of putting the always-loaded root package into an
+# error state. The public @io_bazel_rules_go//:tools_nogo label is preserved
+# via an alias in the root package; aliases are dereferenced during analysis,
+# so this package is never loaded by default builds.
+nogo(
+    name = "tools_nogo",
+    visibility = ["//visibility:public"],
+    deps = TOOLS_NOGO,
+)
